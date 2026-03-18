@@ -7,115 +7,60 @@
     <title>SplitLink | Secure Pay</title>
     <style>
         :root { --bg: #0D0D0D; --accent: #7C3AED; --glass: rgba(255, 255, 255, 0.04); }
-        
-        html, body { 
-            overflow: hidden; touch-action: none; position: fixed; width: 100%; height: 100%;
-            background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif;
-        }
-
-        body { display: flex; align-items: center; justify-content: center; margin: 0; }
-        
-        .aura { 
-            position: absolute; width: 320px; height: 320px; border-radius: 50%; 
-            background: var(--accent); filter: blur(120px); opacity: 0.12; 
-            top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; 
-        }
-
-        .card { 
-            background: var(--glass); backdrop-filter: blur(45px); -webkit-backdrop-filter: blur(45px);
-            border: 0.5px solid rgba(255, 255, 255, 0.08); padding: 35px 24px; 
-            border-radius: 32px; text-align: center; width: 80%; max-width: 320px; 
-        }
-
-        .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 35px; opacity: 0.8; }
-        .amount { font-size: 52px; font-weight: 800; letter-spacing: -2px; margin-bottom: 2px; }
-        .payee { opacity: 0.4; font-size: 11px; margin-bottom: 35px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
-        
-        .btn-stack { display: flex; flex-direction: column; gap: 12px; }
-        
-        .pay-btn { 
-            padding: 16px 20px; border-radius: 20px; font-weight: 600; font-size: 15px; 
-            border: none; cursor: pointer; transition: all 0.2s; 
-            display: flex; align-items: center; justify-content: space-between; 
-            color: white; text-decoration: none; background: rgba(255, 255, 255, 0.06);
-        }
-
-        /* Inverting and resizing the logos to match the aesthetic */
-        .pay-btn img { 
-            height: 20px; width: auto; max-width: 60px;
-            filter: invert(1) brightness(2) grayscale(1);
-            opacity: 0.9;
-        }
-
-        .pay-btn:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.12); }
-        
-        .footer { margin-top: 30px; font-size: 9px; opacity: 0.15; letter-spacing: 2px; text-transform: uppercase; }
-
-        .desktop-msg { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--bg); z-index: 100; flex-direction: column; 
-            align-items: center; justify-content: center; text-align: center; 
-        }
+        html, body { overflow: hidden; touch-action: none; position: fixed; width: 100%; height: 100%; background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif; display: flex; align-items: center; justify-content: center; margin: 0; }
+        .aura { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: var(--accent); filter: blur(110px); opacity: 0.12; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; }
+        .card { background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 0.5px solid rgba(255, 255, 255, 0.08); padding: 32px 20px; border-radius: 32px; text-align: center; width: 80%; max-width: 320px; }
+        .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 30px; opacity: 0.9; }
+        .amount { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 2px; }
+        .payee { opacity: 0.4; font-size: 11px; margin-bottom: 32px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; }
+        .btn-stack { display: flex; flex-direction: column; gap: 10px; }
+        .pay-btn { padding: 14px 20px; border-radius: 20px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; color: white; text-decoration: none; background: rgba(255, 255, 255, 0.05); }
+        .pay-btn img { width: 22px; height: 22px; object-fit: contain; }
+        .pay-btn:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.1); }
+        .gpay { border-left: 3px solid #1a73e8; } .phonepe { border-left: 3px solid #5f259f; } .paytm { border-left: 3px solid #00baf2; }
+        .footer { margin-top: 28px; font-size: 9px; opacity: 0.2; letter-spacing: 1.5px; text-transform: uppercase; }
+        .desktop-msg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
 <body>
-    <div id="desktop-msg" class="desktop-msg">
-        <h2 style="font-weight: 800;">Mobile Only</h2>
-        <p style="opacity: 0.5; font-size: 14px; padding: 0 40px;">Please open this link on your phone to pay via UPI.</p>
-    </div>
-
+    <div id="desktop-msg" class="desktop-msg"><h2>Mobile Only</h2><p>Open this on your phone.</p></div>
     <div class="aura"></div>
-
     <div class="card" id="main-content">
         <div class="brand">SplitLink</div>
         <div id="amt" class="amount">₹0.00</div>
         <div id="name" class="payee">PAYMENT REQUEST</div>
-        
         <div class="btn-stack">
-            <a href="javascript:void(0)" id="gpay" class="pay-btn">
-                <span>Google Pay</span>
-                <img src="https://i.ibb.co/DDNNPGTv/gpay.png" alt="GPay">
-            </a>
-            <a href="javascript:void(0)" id="phonepe" class="pay-btn">
-                <span>PhonePe</span>
-                <img src="https://i.ibb.co/4RBhNsFD/phonepe.png" alt="PhonePe">
-            </a>
-            <a href="javascript:void(0)" id="paytm" class="pay-btn">
-                <span>Paytm</span>
-                <img src="https://i.ibb.co/0yjJb7b6/paytm.png" alt="Paytm">
-            </a>
+            <a href="javascript:void(0)" id="gpay" class="pay-btn gpay"><span>Google Pay</span><img src="https://www.gstatic.com/images/branding/product/2x/gpay_64dp.png"></a>
+            <a href="javascript:void(0)" id="phonepe" class="pay-btn phonepe"><span>PhonePe</span><img src="https://www.vectorlogo.zone/logos/phonepe/phonepe-icon.svg"></a>
+            <a href="javascript:void(0)" id="paytm" class="pay-btn paytm"><span>Paytm</span><img src="https://www.vectorlogo.zone/logos/paytm/paytm-icon.svg"></a>
         </div>
-        
         <div class="footer">Verified SplitLink Protocol</div>
     </div>
 
     <script>
         (function() {
-            // Check for Mobile
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (!isMobile) {
-                document.getElementById('desktop-msg').style.display = 'flex';
-                document.getElementById('main-content').style.display = 'none';
-                return;
-            }
+            if (!isMobile) { document.getElementById('desktop-msg').style.display = 'flex'; return; }
 
             const params = new URLSearchParams(window.location.search);
+            
+            // CRITICAL FIXES FOR BANKING ERRORS:
+            params.delete('tn'); // Remove note (prevents "Risk Blocked")
+            params.set('mc', '0000'); // Add Generic P2P Category Code
+            if(params.has('am')) params.set('am', parseFloat(params.get('am')).toFixed(2)); // Force 2 decimals
+
             const upiQuery = params.toString();
+            document.getElementById('amt').innerText = `₹${parseFloat(params.get('am') || 0).toFixed(2)}`;
+            document.getElementById('name').innerText = `PAYING ${decodeURIComponent(params.get('pn') || 'RECIPIENT').toUpperCase()}`;
 
-            // Sync UI
-            if(params.has('am')) document.getElementById('amt').innerText = `₹${parseFloat(params.get('am')).toFixed(2)}`;
-            if(params.has('pn')) document.getElementById('name').innerText = `PAYING ${decodeURIComponent(params.get('pn')).toUpperCase()}`;
-
-            // Verified Intents
             const intents = {
-                gpay: `tez://upi/pay?${upiQuery}`,
+                gpay: `tez://upi/pay?${upiQuery}`, // tez:// is the secure path for GPay India
                 phonepe: `phonepe://pay?${upiQuery}`,
                 paytm: `paytmmp://pay?${upiQuery}`
             };
 
-            // Event Listeners
             Object.keys(intents).forEach(id => {
-                document.getElementById(id).addEventListener('click', function(e) {
+                document.getElementById(id).addEventListener('click', (e) => {
                     e.preventDefault();
                     setTimeout(() => { window.location.href = intents[id]; }, 50);
                 });
