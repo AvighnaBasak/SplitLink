@@ -2,54 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SplitLink | Choose App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SplitLink | Secure Payment</title>
     <style>
-        body { background-color: #0D0D0D; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .container { width: 90%; max-width: 400px; text-align: center; }
-        h2 { margin-bottom: 5px; font-weight: 800; }
-        p { opacity: 0.6; margin-bottom: 30px; font-size: 14px; }
-        .btn { 
-            display: flex; align-items: center; justify-content: center;
-            width: 100%; padding: 18px; margin-bottom: 12px;
-            border-radius: 16px; text-decoration: none; color: white;
-            font-weight: 600; font-size: 16px; background: #1A1A1A;
-            border: 1px solid rgba(255,255,255,0.1); transition: 0.2s;
-        }
-        .btn:active { transform: scale(0.98); background: #262626; }
-        .gpay { border-left: 4px solid #4285F4; }
-        .phonepe { border-left: 4px solid #5f259f; }
-        .paytm { border-left: 4px solid #00baf2; }
-        .other { border-left: 4px solid #7C3AED; }
+        :root { --accent: #7C3AED; --bg: #0D0D0D; }
+        body { background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .aura { position: absolute; width: 400px; height: 400px; border-radius: 50%; background: var(--accent); filter: blur(120px); opacity: 0.1; z-index: -1; }
+        .card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); border: 0.5px solid rgba(255, 255, 255, 0.08); padding: 40px 20px; border-radius: 32px; text-align: center; width: 85%; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .amount { font-size: 56px; font-weight: 800; letter-spacing: -2px; margin-bottom: 4px; color: #fff; }
+        .payee { opacity: 0.5; font-size: 14px; margin-bottom: 32px; font-weight: 500; }
+        .pay-btn { background: var(--accent); color: white; text-decoration: none; padding: 20px; border-radius: 20px; display: block; font-weight: 700; font-size: 18px; transition: transform 0.1s; border: none; cursor: pointer; width: 100%; box-sizing: border-box; }
+        .pay-btn:active { transform: scale(0.96); opacity: 0.9; }
+        .footer-text { margin-top: 24px; font-size: 12px; opacity: 0.3; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 id="amountDisplay">₹0.00</h2>
-        <p id="nameDisplay">Paying to User</p>
+    <div class="aura"></div>
+    <div class="card">
+        <div id="amt" class="amount">₹0.00</div>
+        <div id="name" class="payee">Paying...</div>
         
-        <a href="#" id="gpayLink" class="btn gpay">Open Google Pay</a>
-        <a href="#" id="phonepeLink" class="btn phonepe">Open PhonePe</a>
-        <a href="#" id="paytmLink" class="btn paytm">Open Paytm</a>
-        <a href="#" id="defaultLink" class="btn other">Any Other UPI App</a>
+        <button id="cta" class="pay-btn">Open UPI App</button>
+        
+        <div class="footer-text">SECURE P2P SPLIT via SPLITLINK</div>
     </div>
 
     <script>
-        window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
-            const rawParams = params.toString();
-            
-            // Set UI details
-            document.getElementById('amountDisplay').innerText = `₹${params.get('am') || '0.00'}`;
-            document.getElementById('nameDisplay').innerText = `Paying to ${decodeURIComponent(params.get('pn') || 'User')}`;
+        const params = new URLSearchParams(window.location.search);
+        const upiUri = `upi://pay?${params.toString()}`;
+        
+        // Update UI with SMS data
+        if(params.has('am')) document.getElementById('amt').innerText = `₹${params.get('am')}`;
+        if(params.has('pn')) document.getElementById('name').innerText = `Paying ${decodeURIComponent(params.get('pn'))}`;
 
-            // Specific App Schemes for iOS/Android
-            // GPay: googlepay://, PhonePe: phonepe://, Paytm: paytmmp://
-            document.getElementById('gpayLink').href = `googlepay://pay?${rawParams}`;
-            document.getElementById('phonepeLink').href = `phonepe://pay?${rawParams}`;
-            document.getElementById('paytmLink').href = `paytmmp://pay?${rawParams}`;
-            document.getElementById('defaultLink').href = `upi://pay?${rawParams}`;
-        };
+        // The Fix: Binding the redirect to a physical button click
+        document.getElementById('cta').addEventListener('click', () => {
+            window.location.href = upiUri;
+            
+            // Fallback: If it doesn't open in 1 sec, try again (helps some Androids)
+            setTimeout(() => { window.location.href = upiUri; }, 1000);
+        });
     </script>
 </body>
 </html>
