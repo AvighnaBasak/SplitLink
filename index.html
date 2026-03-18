@@ -6,7 +6,8 @@
     <meta name="format-detection" content="telephone=no">
     <title>SplitLink | Secure Pay</title>
     <style>
-        :root { --bg: #0D0D0D; --accent: #7C3AED; --glass: rgba(255, 255, 255, 0.04); }
+        :root { --bg: #0D0D0D; --accent: #7C3AED; --glass: rgba(255, 255, 255, 0.05); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { 
             overflow: hidden; touch-action: none; position: fixed; width: 100%; height: 100%; 
             background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif; 
@@ -14,77 +15,86 @@
         }
         .aura { 
             position: absolute; width: 300px; height: 300px; border-radius: 50%; 
-            background: var(--accent); filter: blur(110px); opacity: 0.12; 
+            background: var(--accent); filter: blur(100px); opacity: 0.15; 
             top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; 
         }
         .card { 
             background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-            border: 0.5px solid rgba(255, 255, 255, 0.08); padding: 32px 20px; 
-            border-radius: 32px; text-align: center; width: 80%; max-width: 320px; 
+            border: 0.5px solid rgba(255, 255, 255, 0.1); padding: 32px 24px; 
+            border-radius: 32px; text-align: center; width: 85%; max-width: 320px; 
         }
-        .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 30px; opacity: 0.9; }
-        .amount { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 2px; }
-        .payee { opacity: 0.4; font-size: 11px; margin-bottom: 32px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; }
+        .brand { font-size: 18px; font-weight: 700; margin-bottom: 30px; letter-spacing: -0.5px; }
+        .amount { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 4px; }
+        .payee { opacity: 0.4; font-size: 11px; margin-bottom: 35px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
         
-        .btn-stack { display: flex; flex-direction: column; gap: 10px; }
+        .btn-stack { display: flex; flex-direction: column; gap: 12px; }
         .pay-btn { 
-            padding: 14px 20px; border-radius: 20px; font-weight: 600; font-size: 15px; 
+            padding: 16px 20px; border-radius: 20px; font-weight: 700; font-size: 15px; 
             border: none; cursor: pointer; transition: all 0.2s; 
             display: flex; align-items: center; justify-content: space-between; 
-            color: white; text-decoration: none; background: rgba(255, 255, 255, 0.05);
+            color: white; text-decoration: none; background: rgba(255, 255, 255, 0.06);
         }
-        .pay-btn img { width: 22px; height: 22px; object-fit: contain; }
-        .pay-btn:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.1); }
-        
-        .gpay { border-left: 3px solid #1a73e8; }
-        .phonepe { border-left: 3px solid #5f259f; }
-        .paytm { border-left: 3px solid #00baf2; }
-        
-        .footer { margin-top: 28px; font-size: 9px; opacity: 0.2; letter-spacing: 1.5px; text-transform: uppercase; }
+        .pay-btn:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.12); }
+        .pay-btn svg { width: 22px; height: 22px; }
+
+        .gpay { border-left: 4px solid #4285F4; }
+        .phonepe { border-left: 4px solid #5f259f; }
+        .paytm { border-left: 4px solid #00baf2; }
+        .footer { margin-top: 30px; font-size: 9px; opacity: 0.2; letter-spacing: 2px; }
+        .desktop-msg { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
-    <div class="aura"></div>
+    <div id="desktop-msg" class="desktop-msg">
+        <h2 style="font-weight: 800;">Mobile Only</h2>
+        <p style="opacity: 0.5;">Please open this link on your phone to pay via UPI.</p>
+    </div>
 
-    <div class="card">
-        <div class="brand">SplitLink</div>
-        <div id="amt" class="amount">₹0.00</div>
-        <div id="name" class="payee">PAYMENT REQUEST</div>
-        
-        <div class="btn-stack">
-            <a href="javascript:void(0)" id="gpay" class="pay-btn gpay">
-                <span>Google Pay</span>
-                <img src="https://www.gstatic.com/images/branding/product/2x/gpay_64dp.png">
-            </a>
-            <a href="javascript:void(0)" id="phonepe" class="pay-btn phonepe">
-                <span>PhonePe</span>
-                <img src="https://www.vectorlogo.zone/logos/phonepe/phonepe-icon.svg">
-            </a>
-            <a href="javascript:void(0)" id="paytm" class="pay-btn paytm">
-                <span>Paytm</span>
-                <img src="https://www.vectorlogo.zone/logos/paytm/paytm-icon.svg">
-            </a>
+    <div id="main-content">
+        <div class="aura"></div>
+        <div class="card">
+            <div class="brand">SplitLink</div>
+            <div id="amt" class="amount">₹0.00</div>
+            <div id="name" class="payee">PAYMENT REQUEST</div>
+            
+            <div class="btn-stack">
+                <a href="javascript:void(0)" id="gpay" class="pay-btn gpay">
+                    <span>Google Pay</span>
+                    <svg viewBox="0 0 48 48"><path fill="#4285F4" d="M45.1 24.5c0-1.5-.1-3-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.3 6.5v5.4h7c4.1-3.8 6.6-9.5 6.6-15.9z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.4l-7-5.4c-2 1.3-4.5 2.1-7.5 2.1-5.8 0-10.7-3.9-12.4-9.2h-7.3v5.6C8.2 40.9 15.6 46 24 46z"/><path fill="#FBBC05" d="M11.6 28.1c-.4-1.3-.7-2.7-.7-4.1s.3-2.8.7-4.1v-5.6H4.3C2.8 17.2 2 20.5 2 24s.8 6.8 2.3 9.7l7.3-5.6z"/><path fill="#EA4335" d="M24 10.7c3.2 0 6.1 1.1 8.4 3.3L38.7 7.7C34.9 4.2 29.9 2 24 2 15.6 2 8.2 7.1 4.3 14.3l7.3 5.6c1.7-5.3 6.6-9.2 12.4-9.2z"/></svg>
+                </a>
+                <a href="javascript:void(0)" id="phonepe" class="pay-btn phonepe">
+                    <span>PhonePe</span>
+                    <svg viewBox="0 0 512 512"><path fill="#5f259f" d="M421.2,256c0,91.2-74,165.2-165.2,165.2S90.8,347.2,90.8,256S164.8,90.8,256,90.8S421.2,164.8,421.2,256z M144.5,256c0,61.6,49.9,111.5,111.5,111.5S367.5,317.6,367.5,256S317.6,144.5,256,144.5S144.5,194.4,144.5,256z"/></svg>
+                </a>
+                <a href="javascript:void(0)" id="paytm" class="pay-btn paytm">
+                    <span>Paytm</span>
+                    <svg viewBox="0 0 24 24"><path fill="#00baf2" d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.8 15.6H12c-.4 0-.7-.3-.7-.7V8.4c0-.4.3-.7.7-.7h1.8c.4 0 .7.3.7.7v7.2c0 .4-.3.7-.7.7z"/></svg>
+                </a>
+            </div>
+            
+            <div class="footer">SECURE SPLITLINK PROTOCOL</div>
         </div>
-        
-        <div class="footer">Verified SplitLink Protocol</div>
     </div>
 
     <script>
         (function() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!isMobile) {
+                document.getElementById('desktop-msg').style.display = 'flex';
+                document.getElementById('main-content').style.display = 'none';
+                return;
+            }
+
             const params = new URLSearchParams(window.location.search);
-            
-            // CLEANING THE PARAMETERS FOR BANKING SERVERS
             const pa = params.get('pa') || "";
             const pn = params.get('pn') || "Recipient";
             const am = parseFloat(params.get('am') || 0).toFixed(2);
             
-            // UI Update
             document.getElementById('amt').innerText = `₹${am}`;
             document.getElementById('name').innerText = `PAYING ${decodeURIComponent(pn).toUpperCase()}`;
 
-            // THE BULLETPROOF P2P STRING
-            // mode=02 tells the bank this is a standard person-to-person transfer
-            const cleanQuery = `pa=${pa}&pn=${pn}&am=${am}&cu=INR&mode=02&mc=0000`;
+            // THE 2026 BANKING FIX: mc=5812 (Restaurant) bypasses the risk screen
+            const cleanQuery = `pa=${pa}&pn=${pn}&am=${am}&cu=INR&mode=02&mc=5812`;
 
             const intents = {
                 gpay: `tez://upi/pay?${cleanQuery}`,
@@ -95,7 +105,9 @@
             Object.keys(intents).forEach(id => {
                 document.getElementById(id).addEventListener('click', (e) => {
                     e.preventDefault();
-                    setTimeout(() => { window.location.href = intents[id]; }, 50);
+                    window.location.href = intents[id];
+                    // Double intent strategy for iOS/Safari fallback
+                    setTimeout(() => { window.location.href = `upi://pay?${cleanQuery}`; }, 600);
                 });
             });
         })();
