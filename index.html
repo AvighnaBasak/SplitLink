@@ -5,56 +5,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SplitLink | Secure Pay</title>
     <style>
-        :root { --bg: #0D0D0D; --accent: #7C3AED; --glass: rgba(255, 255, 255, 0.05); }
+        :root { --bg: #0D0D0D; --accent: #7C3AED; --glass: rgba(255, 255, 255, 0.03); }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { overflow: hidden; touch-action: none; position: fixed; width: 100%; height: 100%; background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif; display: flex; align-items: center; justify-content: center; margin: 0; }
-        .aura { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: var(--accent); filter: blur(100px); opacity: 0.15; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; }
-        .card { background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 0.5px solid rgba(255, 255, 255, 0.1); padding: 32px 24px; border-radius: 32px; text-align: center; width: 85%; max-width: 320px; }
-        .brand { font-size: 18px; font-weight: 700; margin-bottom: 30px; letter-spacing: -0.5px; }
-        .amount { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 4px; }
-        .payee { opacity: 0.4; font-size: 11px; margin-bottom: 35px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
-        .btn-stack { display: flex; flex-direction: column; gap: 12px; }
-        .pay-btn { padding: 16px 20px; border-radius: 20px; font-weight: 700; font-size: 15px; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; color: white; text-decoration: none; background: rgba(255, 255, 255, 0.06); }
-        .pay-btn:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.12); }
-        .pay-btn svg { width: 22px; height: 22px; }
-        .gpay { border-left: 4px solid #4285F4; } .phonepe { border-left: 4px solid #5f259f; } .paytm { border-left: 4px solid #00baf2; }
-        .footer { margin-top: 30px; font-size: 9px; opacity: 0.2; letter-spacing: 2px; text-transform: uppercase; }
+        html, body { 
+            overflow: hidden; touch-action: none; position: fixed; width: 100%; height: 100%; 
+            background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif; 
+            display: flex; align-items: center; justify-content: center; margin: 0; 
+        }
+        
+        /* The signature purple aura from your app */
+        .aura { 
+            position: absolute; width: 350px; height: 350px; border-radius: 50%; 
+            background: var(--accent); filter: blur(120px); opacity: 0.15; 
+            top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; 
+        }
+
+        /* Removed the ugly outer card, made it a clean container */
+        .container { 
+            width: 85%; max-width: 340px; text-align: center; z-index: 10;
+        }
+
+        /* App-style Header */
+        .brand { 
+            font-size: 22px; font-weight: 800; margin-bottom: 40px; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .brand-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+        
+        /* Typography */
+        .amount { font-size: 64px; font-weight: 800; letter-spacing: -2.5px; margin-bottom: 8px; }
+        .payee { opacity: 0.4; font-size: 12px; margin-bottom: 40px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+        
+        /* App-style Buttons */
+        .btn-stack { display: flex; flex-direction: column; gap: 14px; }
+        .pay-btn { 
+            background: var(--glass);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 18px 20px; 
+            border-radius: 20px; /* Matched your Instant Split button radius */
+            font-weight: 600; font-size: 16px; 
+            cursor: pointer; transition: all 0.2s; 
+            display: flex; align-items: center; justify-content: center; 
+            color: white; text-decoration: none; position: relative;
+        }
+        .pay-btn:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.08); }
+        
+        /* Icons styling - Inverted and brightened to pure white */
+        .btn-icon { 
+            position: absolute; left: 20px; width: 28px; height: 28px; 
+            object-fit: contain; 
+            filter: invert(1) grayscale(1) brightness(200); 
+        }
+
+        .footer { margin-top: 35px; font-size: 10px; opacity: 0.2; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
         .desktop-msg { display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
-    <div id="desktop-msg" class="desktop-msg"><h2 style="font-weight: 800;">Mobile Only</h2><p style="opacity: 0.5;">Open on your phone to pay via UPI.</p></div>
-    <div id="main-content"><div class="aura"></div><div class="card"><div class="brand">SplitLink</div><div id="amt" class="amount">₹0.00</div><div id="name" class="payee">PAYMENT REQUEST</div><div class="btn-stack">
-        <a href="javascript:void(0)" id="gpay" class="pay-btn gpay"><span>Google Pay</span><svg viewBox="0 0 48 48"><path fill="#4285F4" d="M45.1 24.5c0-1.5-.1-3-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.3 6.5v5.4h7c4.1-3.8 6.6-9.5 6.6-15.9z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.4l-7-5.4c-2 1.3-4.5 2.1-7.5 2.1-5.8 0-10.7-3.9-12.4-9.2h-7.3v5.6C8.2 40.9 15.6 46 24 46z"/><path fill="#FBBC05" d="M11.6 28.1c-.4-1.3-.7-2.7-.7-4.1s.3-2.8.7-4.1v-5.6H4.3C2.8 17.2 2 20.5 2 24s.8 6.8 2.3 9.7l7.3-5.6z"/><path fill="#EA4335" d="M24 10.7c3.2 0 6.1 1.1 8.4 3.3L38.7 7.7C34.9 4.2 29.9 2 24 2 15.6 2 8.2 7.1 4.3 14.3l7.3 5.6c1.7-5.3 6.6-9.2 12.4-9.2z"/></svg></a>
-        <a href="javascript:void(0)" id="phonepe" class="pay-btn phonepe"><span>PhonePe</span><svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.1 17.1h-2.2v-6.7c0-.9-.7-1.6-1.6-1.6h-.6c-.9 0-1.6.7-1.6 1.6v6.7H8.9V6.9h2.2v1.5c.3-.5.8-.9 1.4-.9h.6c1.2 0 2.2 1 2.2 2.2v7.4h1.8z"/></svg></a>
-        <a href="javascript:void(0)" id="paytm" class="pay-btn paytm"><span>Paytm</span><svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 15.6h-1.8c-.4 0-.7-.3-.7-.7v-5.8c0-.4.3-.7.7-.7h1.8c.4 0 .7.3.7.7v5.8c0 .4-.3.7-.7.7zm-4.2 0h-1.8c-.4 0-.7-.3-.7-.7V8.4c0-.4.3-.7.7-.7h1.8c.4 0 .7.3.7.7v7.2c0 .4-.3.7-.7.7zm-4.2 0H6.3c-.4 0-.7-.3-.7-.7V8.4c0-.4.3-.7.7-.7h1.8c.4 0 .7.3.7.7v7.2c0 .4-.3.7-.7.7z"/></svg></a>
-    </div><div class="footer">SECURE SPLITLINK PROTOCOL</div></div></div>
+    <div id="desktop-msg" class="desktop-msg">
+        <h2 style="font-weight: 800;">Mobile Only</h2>
+        <p style="opacity: 0.5;">Please open this link on your phone to pay via UPI.</p>
+    </div>
+
+    <div id="main-content" class="container">
+        <div class="aura"></div>
+        
+        <div class="brand"><div class="brand-dot"></div>SplitLink</div>
+        
+        <div id="amt" class="amount">₹0.00</div>
+        <div id="name" class="payee">PAYING RECIPIENT</div>
+        
+        <div class="btn-stack">
+            <a href="javascript:void(0)" id="gpay" class="pay-btn">
+                <img src="https://i.postimg.cc/fkycNbZ3/icons8-google-pay-96.png" class="btn-icon" alt="GPay">
+                <span>Google Pay</span>
+            </a>
+            <a href="javascript:void(0)" id="phonepe" class="pay-btn">
+                <img src="https://i.postimg.cc/23yQD5mZ/icons8-phone-pe-96.png" class="btn-icon" alt="PhonePe">
+                <span>PhonePe</span>
+            </a>
+            <a href="javascript:void(0)" id="paytm" class="pay-btn">
+                <img src="https://i.postimg.cc/z3vCrf5h/icons8-paytm-100.png" class="btn-icon" alt="Paytm">
+                <span>Paytm</span>
+            </a>
+        </div>
+        
+        <div class="footer">SECURE SPLITLINK PROTOCOL</div>
+    </div>
 
     <script>
         (function() {
+            // Desktop check
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (!isMobile) { document.getElementById('desktop-msg').style.display = 'flex'; document.getElementById('main-content').style.display = 'none'; return; }
+            if (!isMobile) { 
+                document.getElementById('desktop-msg').style.display = 'flex'; 
+                document.getElementById('main-content').style.display = 'none'; 
+                return; 
+            }
             
-            // Get raw params
+            // Get raw params (The pure P2P string that works perfectly)
             const urlParams = new URLSearchParams(window.location.search);
             const rawPa = urlParams.get('pa') || "";
             const rawPn = urlParams.get('pn') || "Recipient";
             const rawAm = urlParams.get('am') || "0";
 
-            // Safely build the purest UPI string possible
+            // Build pure query
             const cleanParams = new URLSearchParams();
             cleanParams.set('pa', rawPa);
             cleanParams.set('pn', rawPn);
             cleanParams.set('am', parseFloat(rawAm).toFixed(2));
             cleanParams.set('cu', 'INR');
-            
             const cleanQuery = cleanParams.toString();
 
             // Update UI
             document.getElementById('amt').innerText = `₹${parseFloat(rawAm).toFixed(2)}`;
             document.getElementById('name').innerText = `PAYING ${rawPn.toUpperCase()}`;
 
-            // App Intents (Using strictly the clean query)
+            // Intents
             const intents = { 
                 gpay: `tez://upi/pay?${cleanQuery}`, 
                 phonepe: `phonepe://pay?${cleanQuery}`, 
@@ -65,7 +132,6 @@
                 document.getElementById(id).addEventListener('click', (e) => {
                     e.preventDefault();
                     window.location.href = intents[id];
-                    // Fallback to standard UPI if specific app protocol fails
                     setTimeout(() => { window.location.href = `upi://pay?${cleanQuery}`; }, 600);
                 });
             });
