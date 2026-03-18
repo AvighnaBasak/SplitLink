@@ -3,74 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SplitLink Payment</title>
+    <title>SplitLink | Choose App</title>
     <style>
-        body {
-            background-color: #0D0D0D;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            text-align: center;
+        body { background-color: #0D0D0D; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { width: 90%; max-width: 400px; text-align: center; }
+        h2 { margin-bottom: 5px; font-weight: 800; }
+        p { opacity: 0.6; margin-bottom: 30px; font-size: 14px; }
+        .btn { 
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; padding: 18px; margin-bottom: 12px;
+            border-radius: 16px; text-decoration: none; color: white;
+            font-weight: 600; font-size: 16px; background: #1A1A1A;
+            border: 1px solid rgba(255,255,255,0.1); transition: 0.2s;
         }
-        .loader {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid #7C3AED;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn {
-            background: #7C3AED;
-            color: white;
-            padding: 16px 32px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
-            display: none;
-            margin-top: 20px;
-        }
+        .btn:active { transform: scale(0.98); background: #262626; }
+        .gpay { border-left: 4px solid #4285F4; }
+        .phonepe { border-left: 4px solid #5f259f; }
+        .paytm { border-left: 4px solid #00baf2; }
+        .other { border-left: 4px solid #7C3AED; }
     </style>
 </head>
 <body>
-    <div class="loader" id="loader"></div>
-    <h2 id="status">Redirecting to UPI App...</h2>
-    <p id="details" style="opacity: 0.6; font-size: 14px;"></p>
-    <a href="#" id="payBtn" class="btn">Open UPI App Manually</a>
+    <div class="container">
+        <h2 id="amountDisplay">₹0.00</h2>
+        <p id="nameDisplay">Paying to User</p>
+        
+        <a href="#" id="gpayLink" class="btn gpay">Open Google Pay</a>
+        <a href="#" id="phonepeLink" class="btn phonepe">Open PhonePe</a>
+        <a href="#" id="paytmLink" class="btn paytm">Open Paytm</a>
+        <a href="#" id="defaultLink" class="btn other">Any Other UPI App</a>
+    </div>
 
     <script>
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
-            if (!params.has('pa')) {
-                document.getElementById('status').innerText = "Invalid Payment Link";
-                document.getElementById('loader').style.display = "none";
-                return;
-            }
-
-            // Construct the upi:// URI
-            const upiUri = `upi://pay?${params.toString()}`;
+            const rawParams = params.toString();
             
-            // Show details to the user
-            const amount = params.get('am');
-            const name = params.get('pn');
-            document.getElementById('details').innerText = `Paying ₹${amount} to ${decodeURIComponent(name)}`;
+            // Set UI details
+            document.getElementById('amountDisplay').innerText = `₹${params.get('am') || '0.00'}`;
+            document.getElementById('nameDisplay').innerText = `Paying to ${decodeURIComponent(params.get('pn') || 'User')}`;
 
-            // Attempt automatic redirect
-            window.location.href = upiUri;
-
-            // Fallback for UI if auto-redirect is blocked
-            setTimeout(() => {
-                document.getElementById('status').innerText = "Redirecting...";
-                document.getElementById('payBtn').style.display = "inline-block";
-                document.getElementById('payBtn').href = upiUri;
-            }, 1500);
+            // Specific App Schemes for iOS/Android
+            // GPay: googlepay://, PhonePe: phonepe://, Paytm: paytmmp://
+            document.getElementById('gpayLink').href = `googlepay://pay?${rawParams}`;
+            document.getElementById('phonepeLink').href = `phonepe://pay?${rawParams}`;
+            document.getElementById('paytmLink').href = `paytmmp://pay?${rawParams}`;
+            document.getElementById('defaultLink').href = `upi://pay?${rawParams}`;
         };
     </script>
 </body>
