@@ -3,53 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
     <title>SplitLink | Secure Pay</title>
     <style>
         :root { --bg: #0D0D0D; --accent: #7C3AED; --glass: rgba(255, 255, 255, 0.04); }
-        body { background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; }
         
-        /* Matching your App's Aura */
-        .aura-top { position: absolute; width: 350px; height: 350px; border-radius: 50%; background: var(--accent); filter: blur(130px); opacity: 0.12; top: -100px; left: -100px; z-index: -1; }
-        .aura-bottom { position: absolute; width: 350px; height: 350px; border-radius: 50%; background: #4F46E5; filter: blur(130px); opacity: 0.1; bottom: -100px; right: -100px; z-index: -1; }
+        /* Stop all zooming and scrolling */
+        html, body { 
+            overflow: hidden; touch-action: none; position: fixed; width: 100%; height: 100%;
+            background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif;
+        }
 
-        .card { background: var(--glass); backdrop-filter: blur(30px); border: 0.5px solid rgba(255, 255, 255, 0.1); padding: 40px 24px; border-radius: 32px; text-align: center; width: 85%; max-width: 380px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        .logo-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .brand { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 40px; display: flex; align-items: center; justify-content: center; }
+        body { display: flex; align-items: center; justify-content: center; margin: 0; }
         
-        .amount { font-size: 58px; font-weight: 800; letter-spacing: -3px; margin-bottom: 4px; }
-        .payee { opacity: 0.5; font-size: 13px; margin-bottom: 35px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
+        .aura { 
+            position: absolute; width: 300px; height: 300px; border-radius: 50%; 
+            background: var(--accent); filter: blur(110px); opacity: 0.12; 
+            top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1; 
+        }
+
+        .card { 
+            background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border: 0.5px solid rgba(255, 255, 255, 0.08); padding: 32px 20px; 
+            border-radius: 32px; text-align: center; width: 80%; max-width: 320px; 
+        }
+
+        .brand { 
+            font-size: 18px; font-weight: 700; letter-spacing: -0.5px; 
+            margin-bottom: 30px; opacity: 0.9;
+        }
         
-        .btn-stack { display: flex; flex-direction: column; gap: 14px; }
-        .pay-btn { padding: 18px; border-radius: 18px; font-weight: 700; font-size: 16px; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; }
-        .pay-btn:active { transform: scale(0.97); opacity: 0.8; }
+        .amount { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 2px; }
+        .payee { opacity: 0.4; font-size: 11px; margin-bottom: 32px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; }
         
-        .gpay { background: #1a73e8; }
-        .phonepe { background: #5f259f; }
-        .paytm { background: #00baf2; }
+        .btn-stack { display: flex; flex-direction: column; gap: 10px; }
         
-        .desktop-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .pay-btn { 
+            padding: 14px 20px; border-radius: 20px; font-weight: 600; font-size: 15px; 
+            border: none; cursor: pointer; transition: all 0.2s; 
+            display: flex; align-items: center; justify-content: space-between; 
+            color: white; text-decoration: none; background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pay-btn img { width: 22px; height: 22px; object-fit: contain; }
+        .pay-btn:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.1); }
         
-        .footer { margin-top: 35px; font-size: 10px; opacity: 0.2; letter-spacing: 2px; text-transform: uppercase; }
+        /* App Specific Styles */
+        .gpay { border-left: 3px solid #1a73e8; }
+        .phonepe { border-left: 3px solid #5f259f; }
+        .paytm { border-left: 3px solid #00baf2; }
+        
+        .desktop-msg { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg); z-index: 100; flex-direction: column; 
+            align-items: center; justify-content: center; text-align: center; 
+        }
+        
+        .footer { margin-top: 28px; font-size: 9px; opacity: 0.2; letter-spacing: 1.5px; text-transform: uppercase; }
     </style>
 </head>
 <body>
-    <div id="desktop-msg" class="desktop-overlay">
+    <div id="desktop-msg" class="desktop-msg">
         <h2 style="font-weight: 800;">Mobile Only</h2>
-        <p style="opacity: 0.5;">SplitLink payments can only be processed on mobile devices with UPI apps installed.</p>
+        <p style="opacity: 0.5; font-size: 14px; padding: 0 40px;">Open this link on a device with UPI apps installed.</p>
     </div>
 
-    <div class="aura-top"></div>
-    <div class="aura-bottom"></div>
+    <div class="aura"></div>
 
     <div class="card" id="main-content">
-        <div class="brand"><span class="logo-dot"></span>SplitLink</div>
+        <div class="brand">SplitLink</div>
         <div id="amt" class="amount">₹0.00</div>
         <div id="name" class="payee">PAYMENT REQUEST</div>
         
         <div class="btn-stack">
-            <a href="javascript:void(0)" id="gpay" class="pay-btn gpay">Google Pay</a>
-            <a href="javascript:void(0)" id="phonepe" class="pay-btn phonepe">PhonePe</a>
-            <a href="javascript:void(0)" id="paytm" class="pay-btn paytm">Paytm</a>
+            <a href="javascript:void(0)" id="gpay" class="pay-btn gpay">
+                <span>Google Pay</span>
+                <img src="https://www.gstatic.com/images/branding/product/2x/gpay_64dp.png" alt="G">
+            </a>
+            <a href="javascript:void(0)" id="phonepe" class="pay-btn phonepe">
+                <span>PhonePe</span>
+                <img src="https://www.vectorlogo.zone/logos/phonepe/phonepe-icon.svg" alt="P">
+            </a>
+            <a href="javascript:void(0)" id="paytm" class="pay-btn paytm">
+                <span>Paytm</span>
+                <img src="https://www.vectorlogo.zone/logos/paytm/paytm-icon.svg" alt="Py">
+            </a>
         </div>
         
         <div class="footer">Verified SplitLink Protocol</div>
@@ -57,7 +95,6 @@
 
     <script>
         (function() {
-            // 1. Mobile Check
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (!isMobile) {
                 document.getElementById('desktop-msg').style.display = 'flex';
@@ -65,37 +102,24 @@
                 return;
             }
 
-            // 2. Secure Parameter Parsing
             const params = new URLSearchParams(window.location.search);
-            const amt = params.get('am') || "0.00";
-            const payee = params.get('pn') ? decodeURIComponent(params.get('pn')) : "Recipient";
             const upiQuery = params.toString();
 
-            // 3. UI Sync
-            document.getElementById('amt').innerText = `₹${parseFloat(amt).toFixed(2)}`;
-            document.getElementById('name').innerText = `PAYING ${payee.toUpperCase()}`;
+            if(params.has('am')) document.getElementById('amt').innerText = `₹${parseFloat(params.get('am')).toFixed(2)}`;
+            if(params.has('pn')) document.getElementById('name').innerText = `PAYING ${decodeURIComponent(params.get('pn')).toUpperCase()}`;
 
-            // 4. Intent Mapping (Verified iOS/Android Protocols)
             const intents = {
                 gpay: `tez://upi/pay?${upiQuery}`,
                 phonepe: `phonepe://pay?${upiQuery}`,
                 paytm: `paytmmp://pay?${upiQuery}`
             };
 
-            // 5. Secure Execution (User Gesture Required)
             Object.keys(intents).forEach(id => {
-                const el = document.getElementById(id);
-                el.addEventListener('click', function(e) {
+                document.getElementById(id).addEventListener('click', function(e) {
                     e.preventDefault();
-                    // Small timeout to satisfy Safari gesture tracking
-                    setTimeout(() => {
-                        window.location.href = intents[id];
-                    }, 50);
+                    setTimeout(() => { window.location.href = intents[id]; }, 50);
                 });
             });
-
-            // 6. Security: Clear Console and prevent data leaks
-            console.clear();
         })();
     </script>
 </body>
